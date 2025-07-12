@@ -1,18 +1,24 @@
-import { useEffect } from "react";
+import { useEffect, useState } from "react";
 import { db } from "./firebase";
-import { doc, setDoc, getDoc } from "firebase/firestore";
+import { doc, getDoc, setDoc } from "firebase/firestore";
 
 function App() {
+  const [status, setStatus] = useState("Checking Firebase...");
+
   useEffect(() => {
     const testFirebase = async () => {
-      const userRef = doc(db, "users", "contoh@wallet");
-      await setDoc(userRef, { count: 1 }); // Menulis data ke Firestore
-
-      const snap = await getDoc(userRef); // Membaca data dari Firestore
-      if (snap.exists()) {
-        console.log("✅ Data ditemukan:", snap.data());
-      } else {
-        console.log("❌ Dokumen tidak ditemukan");
+      try {
+        const ref = doc(db, "users", "contoh@wallet");
+        await setDoc(ref, { count: 1 }); // nulis data
+        const snap = await getDoc(ref); // baca data
+        if (snap.exists()) {
+          const data = snap.data();
+          setStatus("✅ Firebase connected. Count: " + data.count);
+        } else {
+          setStatus("⚠️ No data found.");
+        }
+      } catch (e) {
+        setStatus("❌ Firebase error: " + e.message);
       }
     };
 
@@ -20,9 +26,9 @@ function App() {
   }, []);
 
   return (
-    <div>
+    <div style={{ textAlign: "center", marginTop: "30vh" }}>
       <h1>CoffeePoint</h1>
-      <p>Testing Firebase Firestore connection</p>
+      <p>{status}</p>
     </div>
   );
 }
