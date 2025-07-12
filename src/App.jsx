@@ -1,56 +1,72 @@
-import { useState, useEffect } from "react";
+import { useEffect, useState } from "react";
 import { db } from "./firebase";
 import { doc, getDoc, setDoc, updateDoc } from "firebase/firestore";
 
 function App() {
-  const [status, setStatus] = useState("Loading...");
+  const [wallet, setWallet] = useState("");
   const [count, setCount] = useState(0);
+  const [status, setStatus] = useState("🔄 Menyambungkan wallet...");
 
-  const docId = "contoh@wallet"; // nanti bisa ganti jadi wallet address user beneran
-
-  // Ambil data awal saat halaman dibuka
+  // Connect ke Metamask dan ambil wallet address
   useEffect(() => {
-    const fetchData = async () => {
-      try {
-        const ref = doc(db, "users", docId);
-        const snap = await getDoc(ref);
+    const connectWallet = async () => {
+      if (window.ethereum) {
+        try {
+          const accounts = await window.ethereum.request({
+            method: "eth_requestAccounts",
+          });
+          const address = accounts[0];
+          setWallet(address);
+          setStatus("✅ Wallet terhubung: " + address.slice(0, 6) + "..." + address.slice(-4));
 
-        if (snap.exists()) {
-          const data = snap.data();
-          setCount(data.count || 0);
-          setStatus("✅ Data berhasil dimuat");
-        } else {
-          // kalau belum ada datanya, buat dengan count = 0
-          await setDoc(ref, { count: 0 });
-          setCount(0);
-          setStatus("📦 Data baru dibuat");
+          // Setelah wallet didapat, ambil atau buat data Firestore
+          const userRef = doc(db, "users", address);
+          const snap = await getDoc(userRef);
+
+          if (snap.exists()) {
+            const data = snap.data();
+            setCount(data.count || 0);
+          } else {
+            await setDoc(userRef, { count: 0 });
+            setCount(0);
+          }
+        } catch (err) {
+          setStatus("❌ Gagal menghubungkan wallet: " + err.message);
         }
-      } catch (err) {
-        setStatus("❌ Gagal ambil data: " + err.message);
+      } else {
+        setStatus("❌ Metamask tidak ditemukan. Install dulu ya.");
       }
     };
 
-    fetchData();
+    connectWallet();
   }, []);
 
   // Fungsi tambah poin
   const tambahPoin = async () => {
+    if (!wallet) {
+      setStatus("⚠️ Wallet belum terhubung.");
+      return;
+    }
+
     try {
-      const ref = doc(db, "users", docId);
+      const userRef = doc(db, "users", wallet);
       const newCount = count + 1;
-      await updateDoc(ref, { count: newCount });
+      await updateDoc(userRef, { count: newCount });
       setCount(newCount);
-      setStatus("🎉 Poin berhasil ditambahkan!");
+      setStatus("☕ Poin ngopi ditambah jadi " + newCount);
     } catch (err) {
       setStatus("❌ Gagal menambah poin: " + err.message);
     }
   };
 
   return (
-    <div style={{ textAlign: "center", marginTop: "30vh" }}>
+    <div style={{ textAlign: "center", marginTop: "25vh" }}>
       <h1>CoffeePoint ☕</h1>
-      <p>Poin kamu: <strong>{count}</strong></p>
-      <button onClick={tambahPoin} style={{ padding: "10px 20px", fontSize: "16px" }}>
+      <p style={{ fontSize: "18px" }}>Poin kamu: <strong>{count}</strong></p>
+      <button
+        onClick={tambahPoin}
+        style={{ padding: "10px 20px", fontSize: "16px", marginTop: "10px" }}
+      >
         ➕ Tambah Ngopi
       </button>
       <p style={{ marginTop: "20px", color: "#888" }}>{status}</p>
