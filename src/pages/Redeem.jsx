@@ -1,26 +1,19 @@
-import { useEffect, useState } from "react";
 import { useSearchParams } from "react-router-dom";
+import { useEffect, useState } from "react";
 import { db } from "../firebase";
 import {
-  doc,
-  getDoc,
-  setDoc,
-  updateDoc,
-  increment
+  doc, getDoc, setDoc, updateDoc, increment
 } from "firebase/firestore";
 
 function Redeem() {
   const [searchParams] = useSearchParams();
-  const [status, setStatus] = useState("Memproses...");
+  const [status, setStatus] = useState("⏳ Memproses...");
   const [points, setPoints] = useState(null);
 
   useEffect(() => {
-    const redeemToken = async () => {
+    const redeem = async () => {
       const token = searchParams.get("token");
-      if (!token) {
-        setStatus("❌ Token tidak ditemukan.");
-        return;
-      }
+      if (!token) return setStatus("❌ Token tidak ditemukan.");
 
       let deviceId = localStorage.getItem("device_id");
       if (!deviceId) {
@@ -31,27 +24,21 @@ function Redeem() {
       const tokenRef = doc(db, "tokens", token);
       const tokenSnap = await getDoc(tokenRef);
 
-      if (!tokenSnap.exists()) {
-        setStatus("❌ Token tidak valid.");
-        return;
+      if (!tokenSnap.exists()) return setStatus("❌ Token tidak valid.");
+
+      const tokenData = tokenSnap.data();
+      if ((tokenData.used_by || []).includes(deviceId)) {
+        return setStatus("⚠️ Kamu sudah pakai token ini.");
       }
 
-      const data = tokenSnap.data();
-      if (data.used_by?.includes(deviceId)) {
-        setStatus("⚠️ Kamu sudah pakai token ini.");
-        return;
-      }
-
-      // Tambahkan deviceId ke used_by
-      const updatedUsedBy = [...(data.used_by || []), deviceId];
       await updateDoc(tokenRef, {
-        used_by: updatedUsedBy,
+        used_by: [...(tokenData.used_by || []), deviceId],
         used_at: new Date()
       });
 
-      // Tambah poin user berdasarkan deviceId
       const userRef = doc(db, "users", deviceId);
       const userSnap = await getDoc(userRef);
+
       if (!userSnap.exists()) {
         await setDoc(userRef, { count: 1 });
         setPoints(1);
@@ -64,14 +51,14 @@ function Redeem() {
       setStatus("✅ Poin berhasil ditambahkan!");
     };
 
-    redeemToken();
-  }, [searchParams]);
+    redeem();
+  }, []);
 
   return (
     <div style={{ textAlign: "center", marginTop: "25vh" }}>
-      <h1>Redeem QR 🎉</h1>
+      <h1>🎉 Redeem Token</h1>
       <p>{status}</p>
-      {points !== null && <p>Total poinmu: {points}</p>}
+      {points !== null && <p>Total Poin: {points}</p>}
     </div>
   );
 }
