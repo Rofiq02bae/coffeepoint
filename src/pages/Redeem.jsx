@@ -38,18 +38,18 @@ function Redeem() {
 
       const data = tokenSnap.data();
       if (data.used_by?.includes(deviceId)) {
-        setStatus("⚠️ Token ini sudah kamu gunakan.");
+        setStatus("⚠️ Kamu sudah pakai token ini.");
         return;
       }
 
-      // Tambahkan ke 'used_by'
+      // Tambahkan deviceId ke used_by
       const updatedUsedBy = [...(data.used_by || []), deviceId];
       await updateDoc(tokenRef, {
         used_by: updatedUsedBy,
         used_at: new Date()
       });
 
-      // Tambah poin user (by device)
+      // Tambah poin user berdasarkan deviceId
       const userRef = doc(db, "users", deviceId);
       const userSnap = await getDoc(userRef);
       if (!userSnap.exists()) {
