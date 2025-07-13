@@ -1,0 +1,34 @@
+name: CI - Build & Firebase Test
+
+on:
+  push:
+    branches: [main]
+  pull_request:
+    branches: [main]
+
+jobs:
+  build:
+    runs-on: ubuntu-latest
+
+    steps:
+      - name: 📥 Checkout kode dari repo
+        uses: actions/checkout@v3
+
+      - name: ⚙️ Setup Node.js
+        uses: actions/setup-node@v3
+        with:
+          node-version: 22.17.0
+
+      - name: 📦 Install dependencies
+        run: npm install
+
+      - name: 🛠️ Build project
+        run: npm run build
+
+      - name: 🔍 Jalankan cek Firebase config (tracking aja)
+        run: |
+          echo "Project menggunakan Firebase"
+          grep -r "firebase" ./src || echo "Firebase config tidak ditemukan"
+
+      - name: ✅ Selesai
+        run: echo "CI Build Sukses ✅"

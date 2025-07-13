@@ -1,21 +1,16 @@
 import { useEffect, useState } from "react";
 import { db } from "./firebase";
-import {
-  doc,
-  getDoc,
-  setDoc,
-  updateDoc
-} from "firebase/firestore";
+import { doc, getDoc, setDoc, updateDoc } from "firebase/firestore";
 
 function App() {
   const [deviceId, setDeviceId] = useState("");
-  const [status, setStatus] = useState("🔄 Memuat...");
   const [count, setCount] = useState(0);
   const [lastScan, setLastScan] = useState(null);
+  const [status, setStatus] = useState("🔄 Memuat...");
 
-  const jedaJam = 6; // Ganti jeda waktu di sini (dalam jam)
+  const jedaJam = 6; // ubah ke 3, 12, atau 24 kalau mau
 
-  // Ambil atau buat Device ID
+  // Ambil atau buat ID dari localStorage
   useEffect(() => {
     let id = localStorage.getItem("device_id");
     if (!id) {
@@ -25,7 +20,7 @@ function App() {
     setDeviceId(id);
   }, []);
 
-  // Ambil data dari Firestore
+  // Ambil data Firestore berdasarkan device
   useEffect(() => {
     if (!deviceId) return;
 
@@ -36,7 +31,7 @@ function App() {
         const data = snap.data();
         setCount(data.count || 0);
         setLastScan(data.lastScan?.toDate());
-        setStatus("✅ Siap tambah poin!");
+        setStatus("✅ Siap scan hari ini!");
       } else {
         await setDoc(ref, { count: 0, lastScan: null });
         setCount(0);
@@ -48,7 +43,7 @@ function App() {
     fetchData();
   }, [deviceId]);
 
-  // Tambah Poin (dengan jeda waktu)
+  // Fungsi tambah poin jika jeda sudah cukup
   const tambahPoin = async () => {
     const now = new Date();
     const ref = doc(db, "users", deviceId);
@@ -56,6 +51,7 @@ function App() {
     if (lastScan) {
       const selisihJam = (now - lastScan) / (1000 * 60 * 60);
       const sisaJam = Math.ceil(jedaJam - selisihJam);
+
       if (selisihJam < jedaJam) {
         setStatus(`⏳ Belum bisa. Coba lagi dalam ${sisaJam} jam.`);
         return;
@@ -70,16 +66,17 @@ function App() {
       });
       setCount(newCount);
       setLastScan(now);
-      setStatus(`🎉 Poin ditambah! Total: ${newCount}`);
+      setStatus(`🎉 Poin berhasil ditambah! Total: ${newCount}`);
     } catch (err) {
-      setStatus("❌ Gagal tambah poin: " + err.message);
+      setStatus("❌ Gagal menambah poin: " + err.message);
     }
   };
 
   return (
     <div style={{ textAlign: "center", marginTop: "25vh" }}>
       <h1>CoffeePoint ☕</h1>
-      <p><strong>Poin:</strong> {count}</p>
+      <p><strong>ID Device:</strong> {deviceId.slice(0, 6)}...{deviceId.slice(-4)}</p>
+      <p><strong>Total Poin:</strong> {count}</p>
       <button
         onClick={tambahPoin}
         style={{
@@ -89,7 +86,7 @@ function App() {
           borderRadius: "8px",
         }}
       >
-        ✅ Scan & Tambah Poin
+        ➕ Tambah Poin
       </button>
       <p style={{ marginTop: "20px", color: "#555" }}>{status}</p>
     </div>
