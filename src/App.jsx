@@ -1,103 +1,93 @@
 import { useEffect, useState } from "react";
 import { db } from "./firebase";
-import {
-  collection,
-  doc,
-  getDoc,
-  getDocs,
-  setDoc,
-  updateDoc,
-  increment,
-} from "firebase/firestore";
-import { ethers } from "ethers";
+import { doc, getDoc, setDoc, updateDoc } from "firebase/firestore";
 
 function App() {
-  const [address, setAddress] = useState(null);
-  const [coffeeCount, setCoffeeCount] = useState(0);
+  const [deviceId, setDeviceId] = useState("");
+  const [count, setCount] = useState(0);
+  const [lastScan, setLastScan] = useState(null);
   const [status, setStatus] = useState("🔄 Memuat...");
-  
-  // Hubungkan Wallet
-  const connectWallet = async () => {
-    if (!window.ethereum) return alert("Install Metamask dulu ya!");
-    const provider = new ethers.providers.Web3Provider(window.ethereum);
-    const accounts = await provider.send("eth_requestAccounts", []);
-    setAddress(accounts[0]);
-    setStatus(`✅ Wallet: ${accounts[0].slice(0, 6)}...${accounts[0].slice(-4)}`);
-  };
 
-  // Ambil data poin user
-  const fetchData = async () => {
-    if (!address) return;
-    const userRef = doc(db, "users", address);
-    const userSnap = await getDoc(userRef);
-    if (userSnap.exists()) {
-      setCoffeeCount(userSnap.data().count || 0);
-    } else {
-      await setDoc(userRef, { count: 0 });
-      setCoffeeCount(0);
-    }
-  };
+  const jedaJam = 6; // ubah ke 3, 12, atau 24 kalau mau
 
-  // Tambah poin kopi
-  const addCoffee = async () => {
-    if (!address) return alert("Hubungkan wallet dulu.");
-    const userRef = doc(db, "users", address);
-    await updateDoc(userRef, { count: increment(1) });
-    setStatus("☕ Poin berhasil ditambah!");
-    fetchData();
-  };
-
-  // Jalankan saat wallet terhubung
+  // Ambil atau buat ID dari localStorage
   useEffect(() => {
-    if (address) {
-      fetchData();
+    let id = localStorage.getItem("device_id");
+    if (!id) {
+      id = crypto.randomUUID(); // Buat ID unik
+      localStorage.setItem("device_id", id);
     }
-  }, [address]);
+    setDeviceId(id);
+  }, []);
 
-  // Cek koneksi Firebase saat awal
+  // Ambil data Firestore berdasarkan device
   useEffect(() => {
-    const cekFirebase = async () => {
-      try {
-        const snap = await getDocs(collection(db, "users"));
-        console.log("✅ Terhubung ke Firebase. Jumlah data:", snap.size);
-      } catch (err) {
-        console.error("❌ Gagal terhubung ke Firebase:", err.message);
+    if (!deviceId) return;
+
+    const fetchData = async () => {
+      const ref = doc(db, "users", deviceId);
+      const snap = await getDoc(ref);
+      if (snap.exists()) {
+        const data = snap.data();
+        setCount(data.count || 0);
+        setLastScan(data.lastScan?.toDate());
+        setStatus("✅ Siap scan hari ini!");
+      } else {
+        await setDoc(ref, { count: 0, lastScan: null });
+        setCount(0);
+        setLastScan(null);
+        setStatus("📦 Data baru dibuat.");
       }
     };
-    cekFirebase();
-  }, []);
+
+    fetchData();
+  }, [deviceId]);
+
+  // Fungsi tambah poin jika jeda sudah cukup
+  const tambahPoin = async () => {
+    const now = new Date();
+    const ref = doc(db, "users", deviceId);
+
+    if (lastScan) {
+      const selisihJam = (now - lastScan) / (1000 * 60 * 60);
+      const sisaJam = Math.ceil(jedaJam - selisihJam);
+
+      if (selisihJam < jedaJam) {
+        setStatus(`⏳ Belum bisa. Coba lagi dalam ${sisaJam} jam.`);
+        return;
+      }
+    }
+
+    try {
+      const newCount = count + 1;
+      await updateDoc(ref, {
+        count: newCount,
+        lastScan: now,
+      });
+      setCount(newCount);
+      setLastScan(now);
+      setStatus(`🎉 Poin berhasil ditambah! Total: ${newCount}`);
+    } catch (err) {
+      setStatus("❌ Gagal menambah poin: " + err.message);
+    }
+  };
 
   return (
     <div style={{ textAlign: "center", marginTop: "25vh" }}>
       <h1>CoffeePoint ☕</h1>
-      {address ? (
-        <>
-          <p><strong>Poin:</strong> {coffeeCount}</p>
-          <button
-            onClick={addCoffee}
-            style={{
-              padding: "10px 20px",
-              fontSize: "16px",
-              marginTop: "10px",
-              borderRadius: "8px",
-            }}
-          >
-            ➕ Tambah Poin Ngopi
-          </button>
-        </>
-      ) : (
-        <button
-          onClick={connectWallet}
-          style={{
-            padding: "10px 20px",
-            fontSize: "16px",
-            marginTop: "10px",
-            borderRadius: "8px",
-          }}
-        >
-          🔐 Hubungkan Wallet
-        </button>
-      )}
+      <p><strong>ID Device:</strong> {deviceId.slice(0, 6)}...{deviceId.slice(-4)}</p>
+      <p><strong>Total Poin:</strong> {count}</p>
+      <button
+        onClick={tambahPoin}
+        style={{
+          padding: "10px 20px",
+          fontSize: "16px",
+          marginTop: "10px",
+          borderRadius: "8px",
+        }}
+      >
+        ➕ Tambah Poin
+      </button>
       <p style={{ marginTop: "20px", color: "#555" }}>{status}</p>
     </div>
   );
