@@ -1,6 +1,9 @@
 import { useEffect, useState } from "react";
 import { db } from "./firebase";
 import { doc, getDoc, setDoc, updateDoc } from "firebase/firestore";
+import { BrowserRouter as Router, Routes, Route } from "react-router-dom";
+import Home from "./pages/Home";
+import Redeem from "./pages/Redeem";
 
 function App() {
   const [deviceId, setDeviceId] = useState("");
@@ -91,6 +94,15 @@ function App() {
       <p style={{ marginTop: "20px", color: "#555" }}>{status}</p>
     </div>
   );
+  return (
+    <Router>
+      <Routes>
+        <Route path="/" element={<Home />} />
+        <Route path="/redeem" element={<Redeem />} />
+      </Routes>
+    </Router>
+  );
+  
 }
 
 export default App;
