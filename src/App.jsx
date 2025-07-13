@@ -3,7 +3,7 @@ import { db } from "./firebase";
 import { doc, getDoc, setDoc, updateDoc } from "firebase/firestore";
 import { BrowserRouter as Router, Routes, Route } from "react-router-dom";
 import Home from "./pages/Home";
-import Redeem from "./pages/Redeem";
+import Redeem from "./pages/redeem";
 
 function App() {
   const [deviceId, setDeviceId] = useState("");
