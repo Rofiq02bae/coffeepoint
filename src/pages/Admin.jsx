@@ -7,7 +7,7 @@ import {
   getDocs,
   serverTimestamp,
 } from "firebase/firestore";
-import QRCode from "qrcode.react";
+import {QRCodeSVG} from "qrcode.react";
 
 function Admin() {
   const [tokens, setTokens] = useState([]);
@@ -74,7 +74,7 @@ function Admin() {
           <p>
             <strong>Token:</strong> <code>{item.token}</code>
           </p>
-          <QRCode value={item.url} size={200} />
+          <QRCodeSVG value={item.url} size={200} />
           <p>
             <a href={item.url} target="_blank" rel="noreferrer">
               🔗 {item.url}
