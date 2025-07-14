@@ -8,6 +8,8 @@ import {
   serverTimestamp,
 } from "firebase/firestore";
 import { QRCodeSVG } from "qrcode.react";
+import domtoimage from "dom-to-image";
+
 
 function Dashboard() {
   const [tokens, setTokens] = useState([]);
@@ -56,6 +58,18 @@ function Dashboard() {
     }
   };
 
+  const downloadQR = (tokenId) => {
+    const qrNode = document.getElementById(`qr-${tokenId}`);
+    if (!qrNode) return;
+    domtoimage.toPng(qrNode).then((dataUrl) => {
+      const link = document.createElement("a");
+      link.download = `qr-${tokenId}.png`;
+      link.href = dataUrl;
+      link.click();
+    });
+  };
+  
+
   useEffect(() => {
     fetchTokens();
     fetchUsers();
@@ -88,6 +102,7 @@ function Dashboard() {
             <th style={cell}>Dipakai</th>
             <th style={cell}>QR</th>
             <th style={cell}>Link</th>
+            <th style={cell}>Download</th>
           </tr>
         </thead>
         <tbody>
@@ -104,6 +119,15 @@ function Dashboard() {
                   🔗 Lihat
                 </a>
               </td>
+              <td style={cell}>
+                <div id={`qr-${token.id}`}>
+                    <QRCodeSVG value={`${window.location.origin}/redeem?token=${token.id}`} size={64} />
+                </div>
+                <button onClick={() => downloadQR(token.id)} style={{ marginTop: "5px" }}>
+                    🖨 Download
+                </button>
+                </td>
+
             </tr>
           ))}
         </tbody>

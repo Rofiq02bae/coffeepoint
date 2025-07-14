@@ -3,6 +3,7 @@ import Home from "./pages/Home";
 import Redeem from "./pages/Redeem";
 import Admin from "./pages/Admin"; // ⬅️ penting
 import Dashboard from "./pages/Dashboard";
+import UserDashboard from "./pages/UserDashboard";
 
 function App() {
   return (
@@ -12,6 +13,7 @@ function App() {
         <Route path="/redeem" element={<Redeem />} />
         <Route path="/admin" element={<Admin />} /> {/* ⬅️ WAJIB */}
         <Route path="/dashboard" element={<Dashboard />} /> {/* ⬅️ penting */}
+        <Route path="/me" element={<UserDashboard />} />{}
       </Routes>
     </Router>
   );
