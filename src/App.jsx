@@ -11,7 +11,7 @@ function App() {
         <Route path="/" element={<Home />} />
         <Route path="/redeem" element={<Redeem />} />
         <Route path="/admin" element={<Admin />} /> {/* ⬅️ WAJIB */}
-        <Route path="/dashboard" element={Dashboard}/>
+        <Route path="/dashboard" element={<Dashboard />} /> {/* ⬅️ penting */}
       </Routes>
     </Router>
   );
