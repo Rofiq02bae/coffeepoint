@@ -7,6 +7,8 @@ import {
   setDoc,
   serverTimestamp,
   increment,
+  getDocs,
+  collection, // PERLU DITAMBAH
 } from "firebase/firestore";
 import { QRCodeSVG } from "qrcode.react";
 
