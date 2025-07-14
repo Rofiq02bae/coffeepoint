@@ -1,4 +1,4 @@
-name: CI - Build & Firebase Test
+name: CI - Build & Firebase Test main
 
 on:
   push:
