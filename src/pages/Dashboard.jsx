@@ -49,6 +49,7 @@ function Dashboard() {
       await setDoc(tokenRef, {
         created_at: serverTimestamp(),
         used_by: [],
+        type: "admin"
       });
       await fetchTokens(); // refresh list
     } catch (e) {
@@ -100,9 +101,8 @@ function Dashboard() {
             <th style={cell}>Token</th>
             <th style={cell}>Dibuat</th>
             <th style={cell}>Dipakai</th>
-            <th style={cell}>QR</th>
             <th style={cell}>Link</th>
-            <th style={cell}>Download</th>
+            <th style={cell}>QR & Download</th>
           </tr>
         </thead>
         <tbody>
@@ -111,9 +111,6 @@ function Dashboard() {
               <td style={cell}>{token.id}</td>
               <td style={cell}>{token.created}</td>
               <td style={cell}>{token.usedBy}</td>
-              <td style={cell}>
-                <QRCodeSVG value={`${window.location.origin}/redeem?token=${token.id}`} size={64} />
-              </td>
               <td style={cell}>
                 <a href={`/redeem?token=${token.id}`} target="_blank" rel="noreferrer">
                   🔗 Lihat
@@ -127,7 +124,6 @@ function Dashboard() {
                     🖨 Download
                 </button>
                 </td>
-
             </tr>
           ))}
         </tbody>

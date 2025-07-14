@@ -4,7 +4,8 @@ import {
   doc,
   getDoc,
   updateDoc,
-  arrayUnion
+  arrayUnion,
+  increment
 } from "firebase/firestore";
 import { useSearchParams } from "react-router-dom";
 

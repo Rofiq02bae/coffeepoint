@@ -25,6 +25,7 @@ function Admin() {
       await setDoc(tokenRef, {
         created_at: serverTimestamp(),
         used_by: [],
+        type: "admin"
       });
 
       setTokens((prev) => [

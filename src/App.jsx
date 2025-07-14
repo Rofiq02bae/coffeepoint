@@ -13,7 +13,7 @@ function App() {
         <Route path="/redeem" element={<Redeem />} />
         <Route path="/admin" element={<Admin />} /> {/* ⬅️ WAJIB */}
         <Route path="/dashboard" element={<Dashboard />} /> {/* ⬅️ penting */}
-        <Route path="/me" element={<UserDashboard />} />{}
+        <Route path="/me" element={<UserDashboard />} />
       </Routes>
     </Router>
   );
