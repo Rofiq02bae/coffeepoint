@@ -3,7 +3,7 @@ import Home from "./pages/Home";
 import Redeem from "./pages/Redeem";
 import Admin from "./pages/Admin"; // ⬅️ penting
 import Dashboard from "./pages/Dashboard";
-import UserDashboard from "./pages/UserDashboard";
+import UserDashboard from "./pages/userDashboard";
 
 function App() {
   return (
