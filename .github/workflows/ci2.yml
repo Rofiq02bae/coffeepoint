@@ -1,14 +1,10 @@
-name: CI - Build & Firebase Test
+name: CI - Build & Firebase Test main
 
 on:
   push:
-    branches:
-      -main
-      -dev
+    branches: [main, dev]
   pull_request:
-    branches:
-      -main
-      -dev
+    branches: [main, dev]
 
 jobs:
   build:
