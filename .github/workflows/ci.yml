@@ -1,6 +1,7 @@
 name: CI - Build & Firebase Test
 
-push:
+on:
+  push:
     branches:
       -main
       -dev

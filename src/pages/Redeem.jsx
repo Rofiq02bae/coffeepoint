@@ -1,64 +1,77 @@
-import { useSearchParams } from "react-router-dom";
 import { useEffect, useState } from "react";
 import { db } from "../firebase";
 import {
-  doc, getDoc, setDoc, updateDoc, increment
+  doc,
+  getDoc,
+  updateDoc,
+  arrayUnion
 } from "firebase/firestore";
+import { useSearchParams } from "react-router-dom";
 
 function Redeem() {
-  const [searchParams] = useSearchParams();
   const [status, setStatus] = useState("⏳ Memproses...");
-  const [points, setPoints] = useState(null);
+  const [searchParams] = useSearchParams();
+  const token = searchParams.get("token");
+  const [deviceId, setDeviceId] = useState(null);
 
   useEffect(() => {
-    const redeem = async () => {
-      const token = searchParams.get("token");
-      if (!token) return setStatus("❌ Token tidak ditemukan.");
-
-      let deviceId = localStorage.getItem("device_id");
-      if (!deviceId) {
-        deviceId = crypto.randomUUID();
-        localStorage.setItem("device_id", deviceId);
-      }
-
-      const tokenRef = doc(db, "tokens", token);
-      const tokenSnap = await getDoc(tokenRef);
-
-      if (!tokenSnap.exists()) return setStatus("❌ Token tidak valid.");
-
-      const tokenData = tokenSnap.data();
-      if ((tokenData.used_by || []).includes(deviceId)) {
-        return setStatus("⚠️ Kamu sudah pakai token ini.");
-      }
-
-      await updateDoc(tokenRef, {
-        used_by: [...(tokenData.used_by || []), deviceId],
-        used_at: new Date()
-      });
-
-      const userRef = doc(db, "users", deviceId);
-      const userSnap = await getDoc(userRef);
-
-      if (!userSnap.exists()) {
-        await setDoc(userRef, { count: 1 });
-        setPoints(1);
-      } else {
-        const current = userSnap.data().count || 0;
-        await updateDoc(userRef, { count: increment(1) });
-        setPoints(current + 1);
-      }
-
-      setStatus("✅ Poin berhasil ditambahkan!");
-    };
-
-    redeem();
+    let id = localStorage.getItem("deviceId");
+    if (!id) {
+      id = crypto.randomUUID();
+      localStorage.setItem("deviceId", id);
+    }
+    setDeviceId(id);
   }, []);
 
+  useEffect(() => {
+    if (token && deviceId) handleRedeem();
+  }, [token, deviceId]);
+
+  const handleRedeem = async () => {
+    try {
+      const tokenRef = doc(db, "tokens", token);
+      const snap = await getDoc(tokenRef);
+
+      if (!snap.exists()) {
+        setStatus("❌ Token tidak valid.");
+        return;
+      }
+
+      const data = snap.data();
+      const alreadyUsed = (data.used_by || []).includes(deviceId);
+
+      if (alreadyUsed) {
+        setStatus("⚠️ Voucher sudah pernah digunakan oleh perangkat ini.");
+        return;
+      }
+
+      if ((data.used_by || []).length > 0) {
+        setStatus("❌ Voucher ini sudah digunakan.");
+        return;
+      }
+
+      // tandai token sebagai digunakan
+      await updateDoc(tokenRef, {
+        used_by: arrayUnion(deviceId),
+      });
+
+      // tambah poin user
+      const userRef = doc(db, "users", deviceId);
+      await updateDoc(userRef, {
+        count: increment(1),
+      });
+
+      setStatus("✅ Voucher berhasil digunakan! +1 poin.");
+    } catch (e) {
+      console.error(e);
+      setStatus("❌ Terjadi kesalahan saat memproses token.");
+    }
+  };
+
   return (
-    <div style={{ textAlign: "center", marginTop: "25vh" }}>
-      <h1>🎉 Redeem Token</h1>
+    <div style={{ textAlign: "center", marginTop: "20vh" }}>
+      <h1>🎟️ Penukaran Voucher</h1>
       <p>{status}</p>
-      {points !== null && <p>Total Poin: {points}</p>}
     </div>
   );
 }

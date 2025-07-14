@@ -8,6 +8,8 @@ import {
   serverTimestamp,
 } from "firebase/firestore";
 import { QRCodeSVG } from "qrcode.react";
+import domtoimage from "dom-to-image";
+
 
 function Admin() {
   const [tokens, setTokens] = useState([]);
@@ -92,6 +94,7 @@ function Admin() {
           </div>
         ))
       )}
+      
     </div>
   );
 }
