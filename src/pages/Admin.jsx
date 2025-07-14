@@ -7,7 +7,7 @@ import {
   getDocs,
   serverTimestamp,
 } from "firebase/firestore";
-import { QRCode } from "qrcode.react";
+import QRCode from "qrcode.react";
 
 function Admin() {
   const [tokens, setTokens] = useState([]);
