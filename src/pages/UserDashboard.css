@@ -5,8 +5,8 @@
   margin: 0 auto;
   padding: 2rem;
   font-family: 'Segoe UI', sans-serif;
-  background: #fafafa;
-  color: #333;
+  background: #be6e05;
+  color: #ffffff;
 }
 
 .user-header {
@@ -31,7 +31,7 @@
 }
 
 .points-card {
-  background: white;
+  background: rgb(168, 111, 4);
   padding: 1.5rem;
   border-radius: 12px;
   box-shadow: 0 4px 12px rgba(0,0,0,0.1);
@@ -47,11 +47,11 @@
 .points-value {
   font-size: 3rem;
   font-weight: bold;
-  color: #4CAF50;
+  color: #1608df;
 }
 
 .progress-bar {
-  background: #ddd;
+  background: #1608df;
   border-radius: 10px;
   overflow: hidden;
   height: 16px;
@@ -80,7 +80,8 @@
 }
 
 .redeem-btn.disabled {
-  background: #aaa;
+  background: #ffb74d;
+  color: #fff;
   cursor: not-allowed;
 }
 
