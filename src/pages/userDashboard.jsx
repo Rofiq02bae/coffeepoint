@@ -11,6 +11,7 @@ import {
   collection, // PERLU DITAMBAH
 } from "firebase/firestore";
 import { QRCodeSVG } from "qrcode.react";
+import './UserDashboard.css';
 
 const REDEEM_THRESHOLD = 5;
 
@@ -94,42 +95,138 @@ function UserDashboard() {
   };
 
   return (
-    <div style={{ padding: "2rem", textAlign: "center" }}>
-      <h2>☕ Poin Kamu: {count}</h2>
-      <button
-        onClick={redeem}
-        disabled={count < REDEEM_THRESHOLD}
-        style={{
-          padding: "10px 20px",
-          margin: "20px 0",
-          borderRadius: "6px",
-          background: count < REDEEM_THRESHOLD ? "#ccc" : "#4caf50",
-          color: "white",
-          cursor: count < REDEEM_THRESHOLD ? "not-allowed" : "pointer",
-        }}
-      >
-        🎁 Tukar Voucher
-      </button>
+    <div className="user-dashboard-container">
+      <div className="user-header">
+        <div className="coffee-animation">☕</div>
+        <h1 className="user-title">Coffee Point</h1>
+        <p className="user-subtitle">Kumpulkan poin dan dapatkan kopi gratis!</p>
+      </div>
+
+      <div className="points-section">
+        <div className="points-card">
+          <div className="points-icon">🏆</div>
+          <div className="points-info">
+            <h2 className="points-title">Poin Kamu</h2>
+            <div className="points-value">{count}</div>
+            <div className="points-progress">
+              <div className="progress-bar">
+                <div 
+                  className="progress-fill" 
+                  style={{ width: `${Math.min((count / REDEEM_THRESHOLD) * 100, 100)}%` }}
+                ></div>
+              </div>
+              <p className="progress-text">
+                {count >= REDEEM_THRESHOLD 
+                  ? "Siap ditukar!" 
+                  : `${REDEEM_THRESHOLD - count} poin lagi untuk voucher`
+                }
+              </p>
+            </div>
+          </div>
+        </div>
+      </div>
+
+      <div className="action-section">
+        <button
+          onClick={redeem}
+          disabled={count < REDEEM_THRESHOLD}
+          className={`redeem-btn ${count >= REDEEM_THRESHOLD ? 'ready' : 'disabled'}`}
+        >
+          <span className="btn-icon">🎁</span>
+          <span className="btn-text">
+            {count >= REDEEM_THRESHOLD ? 'Tukar Voucher Sekarang' : 'Butuh Lebih Banyak Poin'}
+          </span>
+        </button>
+      </div>
+
       {voucher && (
-        <div style={{ marginTop: "30px" }}>
-          <h3>🎉 Voucher Kamu</h3>
-          <QRCodeSVG value={voucher.url} size={180} />
-          <p>
-            <a href={voucher.url} target="_blank" rel="noreferrer">
-              🔗 {voucher.url}
-            </a>
-          </p>
+        <div className="voucher-modal">
+          <div className="voucher-content">
+            <div className="success-animation">🎉</div>
+            <h3 className="voucher-title">Selamat! Voucher Berhasil Dibuat</h3>
+            <p className="voucher-description">Tunjukkan QR code ini kepada barista</p>
+            
+            <div className="voucher-qr">
+              <QRCodeSVG value={voucher.url} size={200} />
+            </div>
+            
+            <div className="voucher-actions">
+              <a 
+                href={voucher.url} 
+                target="_blank" 
+                rel="noreferrer"
+                className="voucher-link"
+              >
+                🔗 Buka di Tab Baru
+              </a>
+              <button 
+                onClick={() => setVoucher(null)}
+                className="close-btn"
+              >
+                Tutup
+              </button>
+            </div>
+          </div>
         </div>
       )}
-      <h3>🎟️ Voucher Aktif: {vouchers.length}</h3>
-      <ul>
-        {vouchers.map((v) => (
-          <li key={v.id}>
-            <QRCodeSVG value={`${window.location.origin}/redeem?token=${v.id}`} size={120} />
-            <p><a href={`/redeem?token=${v.id}`} target="_blank">🔗 Gunakan Voucher</a></p>
-          </li>
-        ))}
-      </ul>
+
+      <div className="vouchers-section">
+        <h3 className="section-title">
+          <span className="section-icon">🎟️</span>
+          Voucher Aktif ({vouchers.length})
+        </h3>
+        
+        {vouchers.length > 0 ? (
+          <div className="vouchers-grid">
+            {vouchers.map((v) => (
+              <div key={v.id} className="voucher-card">
+                <div className="voucher-header">
+                  <span className="voucher-status">Aktif</span>
+                  <span className="voucher-date">
+                    {v.created_at?.toDate().toLocaleDateString() || 'Hari ini'}
+                  </span>
+                </div>
+                
+                <div className="voucher-qr-container">
+                  <QRCodeSVG 
+                    value={`${window.location.origin}/redeem?token=${v.id}`} 
+                    size={120} 
+                  />
+                </div>
+                
+                <div className="voucher-actions">
+                  <a 
+                    href={`/redeem?token=${v.id}`} 
+                    target="_blank"
+                    rel="noreferrer"
+                    className="use-voucher-btn"
+                  >
+                    Gunakan Voucher
+                  </a>
+                </div>
+              </div>
+            ))}
+          </div>
+        ) : (
+          <div className="empty-vouchers">
+            <div className="empty-icon">📭</div>
+            <p>Belum ada voucher aktif</p>
+            <small>Kumpulkan {REDEEM_THRESHOLD} poin untuk mendapatkan voucher pertama!</small>
+          </div>
+        )}
+      </div>
+
+      <div className="info-section">
+        <div className="info-card">
+          <h4>💡 Tips</h4>
+          <ul>
+            <li>Setiap pembelian kopi = 1 poin</li>
+            <li>Kumpulkan {REDEEM_THRESHOLD} poin untuk 1 voucher kopi gratis</li>
+            <li>Voucher tidak memiliki tanggal kedaluwarsa</li>
+            <li>Tunjukkan QR code kepada barista untuk menukar voucher</li>
+          </ul>
+        </div>
+      </div>
     </div>
   );
 }

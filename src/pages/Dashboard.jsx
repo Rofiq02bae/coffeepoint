@@ -9,6 +9,7 @@ import {
 } from "firebase/firestore";
 import { QRCodeSVG } from "qrcode.react";
 import domtoimage from "dom-to-image";
+import './Dashboard.css';
 
 
 function Dashboard() {
@@ -77,82 +78,147 @@ function Dashboard() {
   }, []);
 
   return (
-    <div style={{ padding: "2rem" }}>
-      <h1>📊 Dashboard Admin</h1>
+    <div className="dashboard-container">
+      <div className="dashboard-header">
+        <h1 className="dashboard-title">
+          <span className="title-icon">📊</span>
+          Dashboard Admin
+        </h1>
+        <p className="dashboard-subtitle">Kelola token dan pantau aktivitas pengguna</p>
+      </div>
 
-      <button
-        onClick={generateToken}
-        disabled={generating}
-        style={{
-          padding: "10px 20px",
-          fontSize: "16px",
-          margin: "20px 0",
-          borderRadius: "8px",
-          cursor: generating ? "not-allowed" : "pointer",
-        }}
-      >
-        {generating ? "⏳ Membuat..." : "🚀 Generate Token"}
-      </button>
+      <div className="dashboard-actions">
+        <button
+          onClick={generateToken}
+          disabled={generating}
+          className={`generate-btn ${generating ? 'generating' : ''}`}
+        >
+          <span className="btn-icon">{generating ? "⏳" : "🚀"}</span>
+          {generating ? "Membuat Token..." : "Generate Token Baru"}
+        </button>
+      </div>
 
-      <h2>🧾 Daftar Token</h2>
-      <table style={{ width: "100%", borderCollapse: "collapse", marginTop: "10px" }}>
-        <thead>
-          <tr style={{ background: "#eee" }}>
-            <th style={cell}>Token</th>
-            <th style={cell}>Dibuat</th>
-            <th style={cell}>Dipakai</th>
-            <th style={cell}>Link</th>
-            <th style={cell}>QR & Download</th>
-          </tr>
-        </thead>
-        <tbody>
-          {tokens.map((token) => (
-            <tr key={token.id}>
-              <td style={cell}>{token.id}</td>
-              <td style={cell}>{token.created}</td>
-              <td style={cell}>{token.usedBy}</td>
-              <td style={cell}>
-                <a href={`/redeem?token=${token.id}`} target="_blank" rel="noreferrer">
-                  🔗 Lihat
-                </a>
-              </td>
-              <td style={cell}>
-                <div id={`qr-${token.id}`}>
-                    <QRCodeSVG value={`${window.location.origin}/redeem?token=${token.id}`} size={64} />
-                </div>
-                <button onClick={() => downloadQR(token.id)} style={{ marginTop: "5px" }}>
-                    🖨 Download
-                </button>
-                </td>
-            </tr>
-          ))}
-        </tbody>
-      </table>
+      <div className="dashboard-stats">
+        <div className="stat-card">
+          <div className="stat-number">{tokens.length}</div>
+          <div className="stat-label">Total Token</div>
+        </div>
+        <div className="stat-card">
+          <div className="stat-number">{users.length}</div>
+          <div className="stat-label">Total Pengguna</div>
+        </div>
+        <div className="stat-card">
+          <div className="stat-number">{tokens.reduce((acc, token) => acc + token.usedBy, 0)}</div>
+          <div className="stat-label">Total Penggunaan</div>
+        </div>
+      </div>
 
-      <h2 style={{ marginTop: "3rem" }}>👤 Daftar User</h2>
-      <table style={{ width: "100%", borderCollapse: "collapse", marginTop: "10px" }}>
-        <thead>
-          <tr style={{ background: "#eee" }}>
-            <th style={cell}>Device ID</th>
-            <th style={cell}>Total Kopi</th>
-          </tr>
-        </thead>
-        <tbody>
-          {users.map((u) => (
-            <tr key={u.id}>
-              <td style={cell}>{u.id}</td>
-              <td style={cell}>{u.count}</td>
-            </tr>
-          ))}
-        </tbody>
-      </table>
+      <div className="dashboard-section">
+        <h2 className="section-title">
+          <span className="section-icon">🧾</span>
+          Daftar Token
+        </h2>
+        
+        <div className="table-container">
+          <table className="modern-table">
+            <thead>
+              <tr>
+                <th>Token ID</th>
+                <th>Tanggal Dibuat</th>
+                <th>Digunakan</th>
+                <th>Link</th>
+                <th>QR Code</th>
+              </tr>
+            </thead>
+            <tbody>
+              {tokens.map((token) => (
+                <tr key={token.id}>
+                  <td>
+                    <code className="token-id">{token.id.substring(0, 8)}...</code>
+                  </td>
+                  <td>{token.created}</td>
+                  <td>
+                    <span className="usage-badge">{token.usedBy}</span>
+                  </td>
+                  <td>
+                    <a 
+                      href={`/redeem?token=${token.id}`} 
+                      target="_blank" 
+                      rel="noreferrer"
+                      className="link-btn"
+                    >
+                      <span>🔗</span> Lihat
+                    </a>
+                  </td>
+                  <td>
+                    <div className="qr-container">
+                      <div id={`qr-${token.id}`} className="qr-code">
+                        <QRCodeSVG 
+                          value={`${window.location.origin}/redeem?token=${token.id}`} 
+                          size={64} 
+                        />
+                      </div>
+                      <button 
+                        onClick={() => downloadQR(token.id)} 
+                        className="download-btn"
+                        title="Download QR Code"
+                      >
+                        📥
+                      </button>
+                    </div>
+                  </td>
+                </tr>
+              ))}
+              {tokens.length === 0 && (
+                <tr>
+                  <td colSpan="5" className="empty-state">
+                    Belum ada token yang dibuat
+                  </td>
+                </tr>
+              )}
+            </tbody>
+          </table>
+        </div>
+      </div>
+
+      <div className="dashboard-section">
+        <h2 className="section-title">
+          <span className="section-icon">👤</span>
+          Daftar Pengguna
+        </h2>
+        
+        <div className="table-container">
+          <table className="modern-table">
+            <thead>
+              <tr>
+                <th>Device ID</th>
+                <th>Total Poin Kopi</th>
+              </tr>
+            </thead>
+            <tbody>
+              {users.map((u) => (
+                <tr key={u.id}>
+                  <td>
+                    <code className="device-id">{u.id.substring(0, 12)}...</code>
+                  </td>
+                  <td>
+                    <span className="points-badge">{u.count}</span>
+                  </td>
+                </tr>
+              ))}
+              {users.length === 0 && (
+                <tr>
+                  <td colSpan="2" className="empty-state">
+                    Belum ada pengguna terdaftar
+                  </td>
+                </tr>
+              )}
+            </tbody>
+          </table>
+        </div>
+      </div>
     </div>
   );
 }
-
-const cell = {
-  padding: "10px",
-  border: "1px solid #ccc",
-};
 
 export default Dashboard;
