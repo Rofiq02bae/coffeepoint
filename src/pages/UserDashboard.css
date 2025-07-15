@@ -1,509 +1,254 @@
-/* User Dashboard Styles */
+/* Container utama */
 .user-dashboard-container {
-  max-width: 800px;
-  margin: 0 auto;
+  max-width: 1000px;
+  margin: auto;
   padding: 1.5rem;
-  background: linear-gradient(135deg, #ff9a56 0%, #ff6b6b 50%, #c44569 100%);
-  min-height: 100vh;
-  color: #fff;
-  font-family: 'Arial', sans-serif;
+  font-family: "Segoe UI", sans-serif;
+  color: #333;
 }
 
+/* Header */
 .user-header {
   text-align: center;
   margin-bottom: 2rem;
 }
-
-.coffee-animation {
-  font-size: 4rem;
-  margin-bottom: 1rem;
-  animation: bounce 2s infinite;
-}
-
-@keyframes bounce {
-  0%, 20%, 50%, 80%, 100% {
-    transform: translateY(0);
-  }
-  40% {
-    transform: translateY(-10px);
-  }
-  60% {
-    transform: translateY(-5px);
-  }
-}
-
 .user-title {
-  font-size: 2.5rem;
-  font-weight: 700;
-  margin: 0;
-  text-shadow: 2px 2px 4px rgba(0, 0, 0, 0.3);
+  font-size: 2rem;
+  margin: 0.3rem 0;
 }
-
 .user-subtitle {
-  font-size: 1.1rem;
-  opacity: 0.9;
-  margin: 0.5rem 0 0 0;
-  font-weight: 300;
+  color: #666;
+  font-size: 1rem;
+}
+.coffee-animation {
+  font-size: 3rem;
+  animation: steam 1.5s infinite ease-in-out;
+}
+@keyframes steam {
+  0%, 100% { transform: translateY(0px); }
+  50% { transform: translateY(-5px); }
 }
 
+/* Points */
 .points-section {
+  display: flex;
+  justify-content: center;
   margin-bottom: 2rem;
 }
-
 .points-card {
-  background: rgba(255, 255, 255, 0.15);
-  border-radius: 20px;
-  padding: 2rem;
-  backdrop-filter: blur(10px);
-  border: 1px solid rgba(255, 255, 255, 0.2);
-  box-shadow: 0 8px 32px rgba(0, 0, 0, 0.1);
-  display: flex;
-  align-items: center;
-  gap: 1.5rem;
+  background: #f9f9f9;
+  padding: 1.5rem;
+  border-radius: 12px;
+  box-shadow: 0 2px 8px rgba(0,0,0,0.05);
+  max-width: 400px;
+  text-align: center;
 }
-
 .points-icon {
-  font-size: 3rem;
-  animation: pulse 2s infinite;
+  font-size: 2rem;
 }
-
-@keyframes pulse {
-  0% {
-    transform: scale(1);
-  }
-  50% {
-    transform: scale(1.1);
-  }
-  100% {
-    transform: scale(1);
-  }
-}
-
-.points-info {
-  flex: 1;
-}
-
 .points-title {
-  margin: 0 0 0.5rem 0;
-  font-size: 1.2rem;
-  font-weight: 600;
-  opacity: 0.9;
+  font-size: 1.3rem;
+  margin-bottom: 0.3rem;
 }
-
 .points-value {
-  font-size: 3rem;
-  font-weight: 700;
+  font-size: 2.2rem;
+  font-weight: bold;
   margin: 0.5rem 0;
-  text-shadow: 2px 2px 4px rgba(0, 0, 0, 0.3);
 }
-
-.points-progress {
-  margin-top: 1rem;
-}
-
 .progress-bar {
-  width: 100%;
-  height: 12px;
-  background: rgba(255, 255, 255, 0.2);
-  border-radius: 10px;
+  height: 8px;
+  background: #ddd;
+  border-radius: 20px;
   overflow: hidden;
-  margin-bottom: 0.5rem;
+  margin: 0.5rem 0;
 }
-
 .progress-fill {
   height: 100%;
-  background: linear-gradient(90deg, #4ecdc4, #44a08d);
-  border-radius: 10px;
-  transition: width 0.5s ease;
-  position: relative;
+  background: #4caf50;
+  transition: width 0.5s;
 }
-
-.progress-fill::after {
-  content: '';
-  position: absolute;
-  top: 0;
-  left: 0;
-  right: 0;
-  bottom: 0;
-  background: linear-gradient(90deg, transparent, rgba(255, 255, 255, 0.3), transparent);
-  animation: shimmer 2s infinite;
-}
-
-@keyframes shimmer {
-  0% {
-    transform: translateX(-100%);
-  }
-  100% {
-    transform: translateX(100%);
-  }
-}
-
 .progress-text {
   font-size: 0.9rem;
-  opacity: 0.9;
-  margin: 0;
-  text-align: center;
+  color: #444;
 }
 
+/* Button */
 .action-section {
-  margin-bottom: 3rem;
   text-align: center;
+  margin-bottom: 2.5rem;
 }
-
 .redeem-btn {
-  background: linear-gradient(135deg, #4ecdc4, #44a08d);
-  color: white;
+  padding: 0.8rem 1.4rem;
+  font-size: 1rem;
   border: none;
-  padding: 1.2rem 2.5rem;
-  border-radius: 50px;
-  font-size: 1.1rem;
-  font-weight: 600;
+  border-radius: 10px;
+  background: #2196f3;
+  color: white;
   cursor: pointer;
-  transition: all 0.3s ease;
-  display: inline-flex;
-  align-items: center;
-  gap: 0.8rem;
-  box-shadow: 0 6px 20px rgba(78, 205, 196, 0.3);
-  min-width: 280px;
-  justify-content: center;
+  transition: 0.3s;
 }
-
 .redeem-btn.ready:hover {
-  transform: translateY(-3px);
-  box-shadow: 0 8px 25px rgba(78, 205, 196, 0.4);
+  background: #1976d2;
 }
-
 .redeem-btn.disabled {
-  background: rgba(255, 255, 255, 0.2);
+  background: #ccc;
   cursor: not-allowed;
-  box-shadow: none;
 }
 
-.btn-icon {
-  font-size: 1.3rem;
-}
-
-.btn-text {
-  font-weight: 600;
-}
-
+/* Voucher Modal */
 .voucher-modal {
   position: fixed;
   top: 0;
   left: 0;
-  right: 0;
-  bottom: 0;
-  background: rgba(0, 0, 0, 0.8);
+  width: 100%;
+  height: 100%;
+  background: rgba(0,0,0,0.4);
   display: flex;
   align-items: center;
   justify-content: center;
-  z-index: 1000;
-  padding: 1rem;
 }
-
 .voucher-content {
   background: white;
-  color: #333;
-  border-radius: 20px;
   padding: 2rem;
+  border-radius: 12px;
   text-align: center;
   max-width: 400px;
-  width: 100%;
-  animation: modalAppear 0.3s ease;
 }
-
-@keyframes modalAppear {
-  from {
-    transform: scale(0.8);
-    opacity: 0;
-  }
-  to {
-    transform: scale(1);
-    opacity: 1;
-  }
-}
-
 .success-animation {
-  font-size: 3rem;
+  font-size: 2.5rem;
   margin-bottom: 1rem;
-  animation: celebration 0.6s ease;
 }
-
-@keyframes celebration {
-  0%, 100% {
-    transform: scale(1);
-  }
-  50% {
-    transform: scale(1.2);
-  }
-}
-
 .voucher-title {
-  margin: 0 0 0.5rem 0;
-  color: #333;
-  font-size: 1.5rem;
+  font-size: 1.3rem;
+  margin-bottom: 0.5rem;
 }
-
 .voucher-description {
-  margin: 0 0 1.5rem 0;
   color: #666;
+  margin-bottom: 1rem;
 }
-
 .voucher-qr {
-  background: white;
-  padding: 1rem;
-  border-radius: 12px;
-  display: inline-block;
-  margin-bottom: 1.5rem;
-  box-shadow: 0 4px 15px rgba(0, 0, 0, 0.1);
+  margin: 1rem 0;
 }
-
 .voucher-actions {
   display: flex;
-  gap: 1rem;
-  justify-content: center;
-  flex-wrap: wrap;
+  flex-direction: column;
+  gap: 0.5rem;
 }
-
-.voucher-link {
-  background: linear-gradient(135deg, #667eea, #764ba2);
-  color: white;
-  padding: 0.8rem 1.5rem;
-  border-radius: 10px;
-  text-decoration: none;
-  font-weight: 500;
-  transition: all 0.3s ease;
-}
-
-.voucher-link:hover {
-  transform: translateY(-2px);
-  box-shadow: 0 4px 15px rgba(102, 126, 234, 0.3);
-}
-
+.voucher-link,
 .close-btn {
-  background: #e74c3c;
-  color: white;
+  padding: 0.6rem;
   border: none;
-  padding: 0.8rem 1.5rem;
-  border-radius: 10px;
-  cursor: pointer;
-  font-weight: 500;
-  transition: all 0.3s ease;
+  border-radius: 8px;
+  font-size: 1rem;
+  text-decoration: none;
+}
+.voucher-link {
+  background: #4caf50;
+  color: white;
+}
+.close-btn {
+  background: #f44336;
+  color: white;
 }
 
-.close-btn:hover {
-  background: #c0392b;
-  transform: translateY(-2px);
-}
-
+/* Voucher Cards */
 .vouchers-section {
-  margin-bottom: 2rem;
+  margin-top: 2rem;
 }
-
 .section-title {
-  font-size: 1.5rem;
-  font-weight: 600;
-  margin-bottom: 1.5rem;
+  font-size: 1.2rem;
+  margin-bottom: 1rem;
   display: flex;
   align-items: center;
   gap: 0.5rem;
-  justify-content: center;
 }
-
-.section-icon {
-  font-size: 1.3rem;
-}
-
 .vouchers-grid {
-  display: grid;
-  grid-template-columns: repeat(auto-fit, minmax(280px, 1fr));
-  gap: 1.5rem;
+  display: flex;
+  flex-wrap: wrap;
+  gap: 1rem;
 }
-
 .voucher-card {
-  background: rgba(255, 255, 255, 0.15);
-  border-radius: 16px;
-  padding: 1.5rem;
-  backdrop-filter: blur(10px);
-  border: 1px solid rgba(255, 255, 255, 0.2);
-  transition: transform 0.3s ease;
+  background: #f1f1f1;
+  padding: 1rem;
+  border-radius: 12px;
   text-align: center;
+  flex: 1 1 180px;
 }
-
-.voucher-card:hover {
-  transform: translateY(-4px);
-}
-
 .voucher-header {
   display: flex;
   justify-content: space-between;
-  align-items: center;
-  margin-bottom: 1rem;
+  margin-bottom: 0.5rem;
+  font-size: 0.85rem;
 }
-
 .voucher-status {
-  background: #4ecdc4;
+  background: #81c784;
   color: white;
-  padding: 0.3rem 0.8rem;
-  border-radius: 20px;
-  font-size: 0.8rem;
-  font-weight: 600;
+  padding: 0.2rem 0.5rem;
+  border-radius: 5px;
 }
-
-.voucher-date {
-  font-size: 0.8rem;
-  opacity: 0.8;
-}
-
-.voucher-qr-container {
-  background: white;
-  padding: 1rem;
-  border-radius: 12px;
-  display: inline-block;
-  margin-bottom: 1rem;
-}
-
 .use-voucher-btn {
-  background: linear-gradient(135deg, #ff6b6b, #ee5a52);
+  margin-top: 0.8rem;
+  background: #2196f3;
   color: white;
-  padding: 0.8rem 1.5rem;
-  border-radius: 25px;
+  border: none;
+  padding: 0.5rem;
+  border-radius: 8px;
   text-decoration: none;
-  font-weight: 600;
-  transition: all 0.3s ease;
   display: inline-block;
 }
-
 .use-voucher-btn:hover {
-  transform: translateY(-2px);
-  box-shadow: 0 4px 15px rgba(255, 107, 107, 0.3);
+  background: #1976d2;
+}
+.voucher-qr-container {
+  margin-top: 0.5rem;
 }
 
+/* Empty State */
 .empty-vouchers {
   text-align: center;
-  padding: 3rem 2rem;
-  background: rgba(255, 255, 255, 0.1);
-  border-radius: 16px;
-  backdrop-filter: blur(10px);
-}
-
-.empty-icon {
-  font-size: 3rem;
-  margin-bottom: 1rem;
-}
-
-.empty-vouchers p {
-  margin: 0 0 0.5rem 0;
-  font-size: 1.1rem;
-  font-weight: 500;
-}
-
-.empty-vouchers small {
-  opacity: 0.8;
-  font-size: 0.9rem;
-}
-
-.info-section {
+  color: #888;
   margin-top: 2rem;
 }
+.empty-icon {
+  font-size: 2rem;
+  margin-bottom: 0.5rem;
+}
 
+/* Info Section */
+.info-section {
+  margin-top: 2.5rem;
+}
 .info-card {
-  background: rgba(255, 255, 255, 0.1);
-  border-radius: 16px;
-  padding: 1.5rem;
-  backdrop-filter: blur(10px);
-  border: 1px solid rgba(255, 255, 255, 0.2);
+  background: #fff3e0;
+  padding: 1rem;
+  border-radius: 12px;
+  color: #444;
 }
-
-.info-card h4 {
-  margin: 0 0 1rem 0;
-  font-size: 1.2rem;
-  display: flex;
-  align-items: center;
-  gap: 0.5rem;
-}
-
 .info-card ul {
   margin: 0;
   padding-left: 1.5rem;
-  text-align: left;
 }
-
 .info-card li {
   margin-bottom: 0.5rem;
-  opacity: 0.9;
-  line-height: 1.5;
 }
 
-/* Responsive Design */
+/* Responsiveness */
 @media (max-width: 768px) {
-  .user-dashboard-container {
-    padding: 1rem;
-  }
-  
-  .user-title {
-    font-size: 2rem;
-  }
-  
-  .points-card {
+  .points-section {
     flex-direction: column;
-    text-align: center;
-    gap: 1rem;
+    align-items: center;
   }
-  
-  .points-icon {
-    font-size: 2.5rem;
+
+  .vouchers-grid {
+    flex-direction: column;
+    align-items: center;
   }
-  
-  .points-value {
-    font-size: 2.5rem;
-  }
-  
+
   .redeem-btn {
-    padding: 1rem 2rem;
-    min-width: auto;
     width: 100%;
   }
-  
-  .voucher-modal {
-    padding: 0.5rem;
-  }
-  
-  .voucher-content {
-    padding: 1.5rem;
-  }
-  
-  .vouchers-grid {
-    grid-template-columns: 1fr;
-  }
-  
-  .voucher-actions {
-    flex-direction: column;
-  }
-}
 
-@media (max-width: 480px) {
-  .coffee-animation {
-    font-size: 3rem;
-  }
-  
-  .user-title {
-    font-size: 1.8rem;
-  }
-  
-  .points-card {
-    padding: 1.5rem;
-  }
-  
-  .points-value {
-    font-size: 2rem;
-  }
-  
-  .section-title {
-    font-size: 1.3rem;
-  }
-  
-  .voucher-card {
-    padding: 1rem;
+  .voucher-content {
+    width: 90%;
   }
 }
