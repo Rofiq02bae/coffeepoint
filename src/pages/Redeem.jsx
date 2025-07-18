@@ -46,7 +46,7 @@ function Redeem() {
       }, 1000);
       return () => clearTimeout(timer);
     } else if (countdown === 0) {
-      navigate('/user');
+      navigate('/me');
     }
   }, [countdown, navigate]);
 
@@ -137,7 +137,7 @@ function Redeem() {
             <p className="text-sm text-gray-500 mt-2">detik</p>
             
             <button
-              onClick={() => navigate('/user')}
+              onClick={() => navigate('/me')}
               className="mt-4 bg-coffee-500 hover:bg-coffee-600 text-white px-6 py-2 rounded-xl transition-colors duration-200"
             >
               Kembali Sekarang

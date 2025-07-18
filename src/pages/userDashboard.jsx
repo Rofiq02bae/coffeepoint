@@ -164,12 +164,21 @@ function UserDashboard() {
       const userRef = doc(db, "users", deviceId);
       const voucherId = crypto.randomUUID();
       
-      // Create new voucher object
+      // Create new voucher object for wallet
       const newVoucher = {
         id: voucherId,
         created_at: serverTimestamp(),
         used: false
       };
+      
+      // Create token in tokens collection for QR redemption
+      const tokenRef = doc(db, "tokens", voucherId);
+      await setDoc(tokenRef, {
+        created_at: serverTimestamp(),
+        used_by: [],
+        type: "voucher",
+        from_user: deviceId
+      });
       
       // Update user wallet
       const updatedVouchers = [...(wallet.vouchers || []), newVoucher];
