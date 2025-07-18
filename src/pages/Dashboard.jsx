@@ -9,7 +9,6 @@ import {
 } from "firebase/firestore";
 import { QRCodeSVG } from "qrcode.react";
 import domtoimage from "dom-to-image";
-import './Dashboard.css';
 
 
 function Dashboard() {
@@ -78,143 +77,166 @@ function Dashboard() {
   }, []);
 
   return (
-    <div className="dashboard-container">
-      <div className="dashboard-header">
-        <h1 className="dashboard-title">
-          <span className="title-icon">📊</span>
-          Dashboard Admin
-        </h1>
-        <p className="dashboard-subtitle">Kelola token dan pantau aktivitas pengguna</p>
-      </div>
-
-      <div className="dashboard-actions">
-        <button
-          onClick={generateToken}
-          disabled={generating}
-          className={`generate-btn ${generating ? 'generating' : ''}`}
-        >
-          <span className="btn-icon">{generating ? "⏳" : "🚀"}</span>
-          {generating ? "Membuat Token..." : "Generate Token Baru"}
-        </button>
-      </div>
-
-      <div className="dashboard-stats">
-        <div className="stat-card">
-          <div className="stat-number">{tokens.length}</div>
-          <div className="stat-label">Total Token</div>
+    <div className="min-h-screen bg-gradient-to-br from-blue-600 via-purple-600 to-purple-800 text-white">
+      <div className="max-w-7xl mx-auto p-8">
+        {/* Header */}
+        <div className="text-center mb-12">
+          <h1 className="text-5xl font-bold mb-4 flex items-center justify-center gap-4">
+            <span className="text-6xl">📊</span>
+            Dashboard Admin
+          </h1>
+          <p className="text-xl opacity-90 font-light">Kelola token dan pantau aktivitas pengguna</p>
         </div>
-        <div className="stat-card">
-          <div className="stat-number">{users.length}</div>
-          <div className="stat-label">Total Pengguna</div>
-        </div>
-        <div className="stat-card">
-          <div className="stat-number">{tokens.reduce((acc, token) => acc + token.usedBy, 0)}</div>
-          <div className="stat-label">Total Penggunaan</div>
-        </div>
-      </div>
 
-      <div className="dashboard-section">
-        <h2 className="section-title">
-          <span className="section-icon">🧾</span>
-          Daftar Token
-        </h2>
-        
-        <div className="table-container">
-          <table className="modern-table">
-            <thead>
-              <tr>
-                <th>Token ID</th>
-                <th>Tanggal Dibuat</th>
-                <th>Digunakan</th>
-                <th>Link</th>
-                <th>QR Code</th>
-              </tr>
-            </thead>
-            <tbody>
-              {tokens.map((token) => (
-                <tr key={token.id}>
-                  <td>
-                    <code className="token-id">{token.id.substring(0, 8)}...</code>
-                  </td>
-                  <td>{token.created}</td>
-                  <td>
-                    <span className="usage-badge">{token.usedBy}</span>
-                  </td>
-                  <td>
-                    <a 
-                      href={`/redeem?token=${token.id}`} 
-                      target="_blank" 
-                      rel="noreferrer"
-                      className="link-btn"
-                    >
-                      <span>🔗</span> Lihat
-                    </a>
-                  </td>
-                  <td>
-                    <div className="qr-container">
-                      <div id={`qr-${token.id}`} className="qr-code">
-                        <QRCodeSVG 
-                          value={`${window.location.origin}/redeem?token=${token.id}`} 
-                          size={64} 
-                        />
-                      </div>
-                      <button 
-                        onClick={() => downloadQR(token.id)} 
-                        className="download-btn"
-                        title="Download QR Code"
+        {/* Generate Token Button */}
+        <div className="flex justify-center mb-12">
+          <button
+            onClick={generateToken}
+            disabled={generating}
+            className={`
+              bg-gradient-to-r from-red-500 to-red-600 text-white px-8 py-4 rounded-2xl 
+              text-lg font-semibold transition-all duration-300 flex items-center gap-3
+              shadow-lg shadow-red-500/30
+              ${generating 
+                ? 'opacity-70 cursor-not-allowed' 
+                : 'hover:-translate-y-1 hover:shadow-xl hover:shadow-red-500/40'
+              }
+            `}
+          >
+            <span className="text-xl">{generating ? "⏳" : "🚀"}</span>
+            {generating ? "Membuat Token..." : "Generate Token Baru"}
+          </button>
+        </div>
+
+        {/* Statistics Cards */}
+        <div className="grid grid-cols-1 md:grid-cols-3 gap-6 mb-12">
+          <div className="bg-white/10 backdrop-blur-lg rounded-2xl p-8 text-center border border-white/20 hover:-translate-y-1 transition-all duration-300">
+            <div className="text-4xl font-bold mb-2">{tokens.length}</div>
+            <div className="text-lg opacity-90 font-light">Total Token</div>
+          </div>
+          <div className="bg-white/10 backdrop-blur-lg rounded-2xl p-8 text-center border border-white/20 hover:-translate-y-1 transition-all duration-300">
+            <div className="text-4xl font-bold mb-2">{users.length}</div>
+            <div className="text-lg opacity-90 font-light">Total Pengguna</div>
+          </div>
+          <div className="bg-white/10 backdrop-blur-lg rounded-2xl p-8 text-center border border-white/20 hover:-translate-y-1 transition-all duration-300">
+            <div className="text-4xl font-bold mb-2">{tokens.reduce((acc, token) => acc + token.usedBy, 0)}</div>
+            <div className="text-lg opacity-90 font-light">Total Penggunaan</div>
+          </div>
+        </div>
+
+        {/* Tokens Section */}
+        <div className="mb-12">
+          <h2 className="text-3xl font-semibold mb-6 flex items-center gap-3">
+            <span className="text-2xl">🧾</span>
+            Daftar Token
+          </h2>
+          
+          <div className="bg-white/95 backdrop-blur-lg rounded-2xl p-6 shadow-2xl overflow-x-auto">
+            <table className="w-full text-gray-800">
+              <thead>
+                <tr className="bg-gradient-to-r from-blue-600 to-purple-600 text-white">
+                  <th className="px-4 py-3 text-left font-semibold text-sm uppercase tracking-wider rounded-l-xl">Token ID</th>
+                  <th className="px-4 py-3 text-left font-semibold text-sm uppercase tracking-wider">Tanggal Dibuat</th>
+                  <th className="px-4 py-3 text-left font-semibold text-sm uppercase tracking-wider">Digunakan</th>
+                  <th className="px-4 py-3 text-left font-semibold text-sm uppercase tracking-wider">Link</th>
+                  <th className="px-4 py-3 text-left font-semibold text-sm uppercase tracking-wider rounded-r-xl">QR Code</th>
+                </tr>
+              </thead>
+              <tbody>
+                {tokens.map((token) => (
+                  <tr key={token.id} className="border-b border-gray-200 hover:bg-blue-50 transition-colors">
+                    <td className="px-4 py-4">
+                      <code className="bg-gray-100 px-3 py-1 rounded-lg font-mono text-sm text-gray-700">
+                        {token.id.substring(0, 8)}...
+                      </code>
+                    </td>
+                    <td className="px-4 py-4 text-gray-700">{token.created}</td>
+                    <td className="px-4 py-4">
+                      <span className="bg-gradient-to-r from-teal-400 to-green-500 text-white px-3 py-1 rounded-full text-sm font-semibold">
+                        {token.usedBy}
+                      </span>
+                    </td>
+                    <td className="px-4 py-4">
+                      <a 
+                        href={`/redeem?token=${token.id}`} 
+                        target="_blank" 
+                        rel="noreferrer"
+                        className="bg-gradient-to-r from-blue-500 to-purple-600 text-white px-4 py-2 rounded-xl font-medium hover:-translate-y-0.5 transition-all duration-300 inline-flex items-center gap-2"
                       >
-                        📥
-                      </button>
-                    </div>
-                  </td>
-                </tr>
-              ))}
-              {tokens.length === 0 && (
-                <tr>
-                  <td colSpan="5" className="empty-state">
-                    Belum ada token yang dibuat
-                  </td>
-                </tr>
-              )}
-            </tbody>
-          </table>
+                        <span>🔗</span> Lihat
+                      </a>
+                    </td>
+                    <td className="px-4 py-4">
+                      <div className="flex items-center gap-4">
+                        <div id={`qr-${token.id}`} className="bg-white p-2 rounded-xl">
+                          <QRCodeSVG 
+                            value={`${window.location.origin}/redeem?token=${token.id}`} 
+                            size={64} 
+                          />
+                        </div>
+                        <button 
+                          onClick={() => downloadQR(token.id)} 
+                          className="bg-teal-400 hover:bg-teal-500 text-white p-2 rounded-xl transition-all duration-300 hover:scale-110"
+                          title="Download QR Code"
+                        >
+                          📥
+                        </button>
+                      </div>
+                    </td>
+                  </tr>
+                ))}
+                {tokens.length === 0 && (
+                  <tr>
+                    <td colSpan="5" className="px-4 py-12 text-center text-gray-500 italic">
+                      Belum ada token yang dibuat
+                    </td>
+                  </tr>
+                )}
+              </tbody>
+            </table>
+          </div>
         </div>
-      </div>
 
-      <div className="dashboard-section">
-        <h2 className="section-title">
-          <span className="section-icon">👤</span>
-          Daftar Pengguna
-        </h2>
-        
-        <div className="table-container">
-          <table className="modern-table">
-            <thead>
-              <tr>
-                <th>Device ID</th>
-                <th>Total Poin Kopi</th>
-              </tr>
-            </thead>
-            <tbody>
-              {users.map((u) => (
-                <tr key={u.id}>
-                  <td>
-                    <code className="device-id">{u.id.substring(0, 12)}...</code>
-                  </td>
-                  <td>
-                    <span className="points-badge">{u.count}</span>
-                  </td>
+        {/* Users Section */}
+        <div className="mb-8">
+          <h2 className="text-3xl font-semibold mb-6 flex items-center gap-3">
+            <span className="text-2xl">👤</span>
+            Daftar Pengguna
+          </h2>
+          
+          <div className="bg-white/95 backdrop-blur-lg rounded-2xl p-6 shadow-2xl overflow-x-auto">
+            <table className="w-full text-gray-800">
+              <thead>
+                <tr className="bg-gradient-to-r from-blue-600 to-purple-600 text-white">
+                  <th className="px-4 py-3 text-left font-semibold text-sm uppercase tracking-wider rounded-l-xl">Device ID</th>
+                  <th className="px-4 py-3 text-left font-semibold text-sm uppercase tracking-wider rounded-r-xl">Total Poin Kopi</th>
                 </tr>
-              ))}
-              {users.length === 0 && (
-                <tr>
-                  <td colSpan="2" className="empty-state">
-                    Belum ada pengguna terdaftar
-                  </td>
-                </tr>
-              )}
-            </tbody>
-          </table>
+              </thead>
+              <tbody>
+                {users.map((u) => (
+                  <tr key={u.id} className="border-b border-gray-200 hover:bg-blue-50 transition-colors">
+                    <td className="px-4 py-4">
+                      <code className="bg-gray-100 px-3 py-1 rounded-lg font-mono text-sm text-gray-700">
+                        {u.id.substring(0, 12)}...
+                      </code>
+                    </td>
+                    <td className="px-4 py-4">
+                      <span className="bg-gradient-to-r from-teal-400 to-green-500 text-white px-3 py-1 rounded-full text-sm font-semibold">
+                        {u.count}
+                      </span>
+                    </td>
+                  </tr>
+                ))}
+                {users.length === 0 && (
+                  <tr>
+                    <td colSpan="2" className="px-4 py-12 text-center text-gray-500 italic">
+                      Belum ada pengguna terdaftar
+                    </td>
+                  </tr>
+                )}
+              </tbody>
+            </table>
+          </div>
         </div>
       </div>
     </div>

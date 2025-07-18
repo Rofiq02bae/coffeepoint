@@ -11,7 +11,6 @@ import {
   collection, // PERLU DITAMBAH
 } from "firebase/firestore";
 import { QRCodeSVG } from "qrcode.react";
-import './UserDashboard.css';
 
 const REDEEM_THRESHOLD = 5;
 
@@ -95,135 +94,158 @@ function UserDashboard() {
   };
 
   return (
-    <div className="user-dashboard-container">
-      <div className="user-header">
-        <div className="coffee-animation">☕</div>
-        <h1 className="user-title">Coffee Point</h1>
-        <p className="user-subtitle">Kumpulkan poin dan dapatkan kopi gratis!</p>
-      </div>
+    <div className="min-h-screen bg-gradient-to-br from-orange-400 via-red-500 to-pink-500 text-white p-6">
+      <div className="max-w-4xl mx-auto">
+        {/* Header */}
+        <div className="text-center mb-8">
+          <div className="text-6xl mb-4 animate-bounce-slow">☕</div>
+          <h1 className="text-4xl font-bold mb-2 drop-shadow-lg">Coffee Point</h1>
+          <p className="text-lg opacity-90 font-light">Kumpulkan poin dan dapatkan kopi gratis!</p>
+        </div>
 
-      <div className="points-section">
-        <div className="points-card">
-          <div className="points-icon">🏆</div>
-          <div className="points-info">
-            <h2 className="points-title">Poin Kamu</h2>
-            <div className="points-value">{count}</div>
-            <div className="points-progress">
-              <div className="progress-bar">
-                <div 
-                  className="progress-fill" 
-                  style={{ width: `${Math.min((count / REDEEM_THRESHOLD) * 100, 100)}%` }}
-                ></div>
+        {/* Points Section */}
+        <div className="mb-8">
+          <div className="bg-white/10 backdrop-blur-lg rounded-3xl p-8 border border-white/20 shadow-2xl">
+            <div className="flex items-center gap-6 flex-col md:flex-row text-center md:text-left">
+              <div className="text-5xl animate-pulse-slow">🏆</div>
+              <div className="flex-1">
+                <h2 className="text-xl font-semibold mb-2 opacity-90">Poin Kamu</h2>
+                <div className="text-5xl font-bold mb-4 drop-shadow-lg">{count}</div>
+                <div className="space-y-2">
+                  <div className="w-full h-3 bg-white/20 rounded-full overflow-hidden">
+                    <div 
+                      className="h-full bg-gradient-to-r from-teal-400 to-green-500 rounded-full transition-all duration-500 relative"
+                      style={{ width: `${Math.min((count / REDEEM_THRESHOLD) * 100, 100)}%` }}
+                    >
+                      <div className="absolute inset-0 bg-gradient-to-r from-transparent via-white/30 to-transparent animate-shimmer"></div>
+                    </div>
+                  </div>
+                  <p className="text-sm opacity-90 text-center">
+                    {count >= REDEEM_THRESHOLD 
+                      ? "Siap ditukar!" 
+                      : `${REDEEM_THRESHOLD - count} poin lagi untuk voucher`
+                    }
+                  </p>
+                </div>
               </div>
-              <p className="progress-text">
-                {count >= REDEEM_THRESHOLD 
-                  ? "Siap ditukar!" 
-                  : `${REDEEM_THRESHOLD - count} poin lagi untuk voucher`
-                }
-              </p>
             </div>
           </div>
         </div>
-      </div>
 
-      <div className="action-section">
-        <button
-          onClick={redeem}
-          disabled={count < REDEEM_THRESHOLD}
-          className={`redeem-btn ${count >= REDEEM_THRESHOLD ? 'ready' : 'disabled'}`}
-        >
-          <span className="btn-icon">🎁</span>
-          <span className="btn-text">
-            {count >= REDEEM_THRESHOLD ? 'Tukar Voucher Sekarang' : 'Butuh Lebih Banyak Poin'}
-          </span>
-        </button>
-      </div>
-
-      {voucher && (
-        <div className="voucher-modal">
-          <div className="voucher-content">
-            <div className="success-animation">🎉</div>
-            <h3 className="voucher-title">Selamat! Voucher Berhasil Dibuat</h3>
-            <p className="voucher-description">Tunjukkan QR code ini kepada barista</p>
-            
-            <div className="voucher-qr">
-              <QRCodeSVG value={voucher.url} size={200} />
-            </div>
-            
-            <div className="voucher-actions">
-              <a 
-                href={voucher.url} 
-                target="_blank" 
-                rel="noreferrer"
-                className="voucher-link"
-              >
-                🔗 Buka di Tab Baru
-              </a>
-              <button 
-                onClick={() => setVoucher(null)}
-                className="close-btn"
-              >
-                Tutup
-              </button>
-            </div>
-          </div>
+        {/* Action Button */}
+        <div className="text-center mb-12">
+          <button
+            onClick={redeem}
+            disabled={count < REDEEM_THRESHOLD}
+            className={`
+              px-10 py-4 rounded-full text-lg font-semibold transition-all duration-300 
+              flex items-center gap-3 mx-auto min-w-[280px] justify-center
+              ${count >= REDEEM_THRESHOLD 
+                ? 'bg-gradient-to-r from-teal-400 to-green-500 hover:-translate-y-1 hover:shadow-xl shadow-teal-400/30' 
+                : 'bg-white/20 cursor-not-allowed'
+              }
+            `}
+          >
+            <span className="text-xl">🎁</span>
+            <span>
+              {count >= REDEEM_THRESHOLD ? 'Tukar Voucher Sekarang' : 'Butuh Lebih Banyak Poin'}
+            </span>
+          </button>
         </div>
-      )}
 
-      <div className="vouchers-section">
-        <h3 className="section-title">
-          <span className="section-icon">🎟️</span>
-          Voucher Aktif ({vouchers.length})
-        </h3>
-        
-        {vouchers.length > 0 ? (
-          <div className="vouchers-grid">
-            {vouchers.map((v) => (
-              <div key={v.id} className="voucher-card">
-                <div className="voucher-header">
-                  <span className="voucher-status">Aktif</span>
-                  <span className="voucher-date">
-                    {v.created_at?.toDate().toLocaleDateString() || 'Hari ini'}
-                  </span>
+        {/* Voucher Modal */}
+        {voucher && (
+          <div className="fixed inset-0 bg-black/80 flex items-center justify-center z-50 p-4">
+            <div className="bg-white text-gray-800 rounded-3xl p-8 max-w-md w-full animate-modal-appear">
+              <div className="text-center">
+                <div className="text-5xl mb-4 animate-celebration">🎉</div>
+                <h3 className="text-2xl font-bold mb-2">Selamat! Voucher Berhasil Dibuat</h3>
+                <p className="text-gray-600 mb-6">Tunjukkan QR code ini kepada barista</p>
+                
+                <div className="bg-white p-4 rounded-2xl inline-block mb-6 shadow-lg">
+                  <QRCodeSVG value={voucher.url} size={200} />
                 </div>
                 
-                <div className="voucher-qr-container">
-                  <QRCodeSVG 
-                    value={`${window.location.origin}/redeem?token=${v.id}`} 
-                    size={120} 
-                  />
-                </div>
-                
-                <div className="voucher-actions">
+                <div className="flex gap-3 justify-center flex-wrap">
                   <a 
-                    href={`/redeem?token=${v.id}`} 
-                    target="_blank"
+                    href={voucher.url} 
+                    target="_blank" 
                     rel="noreferrer"
-                    className="use-voucher-btn"
+                    className="bg-gradient-to-r from-blue-500 to-purple-600 text-white px-6 py-3 rounded-xl font-medium hover:-translate-y-0.5 transition-all duration-300"
                   >
-                    Gunakan Voucher
+                    🔗 Buka di Tab Baru
                   </a>
+                  <button 
+                    onClick={() => setVoucher(null)}
+                    className="bg-red-500 text-white px-6 py-3 rounded-xl font-medium hover:bg-red-600 hover:-translate-y-0.5 transition-all duration-300"
+                  >
+                    Tutup
+                  </button>
                 </div>
               </div>
-            ))}
-          </div>
-        ) : (
-          <div className="empty-vouchers">
-            <div className="empty-icon">📭</div>
-            <p>Belum ada voucher aktif</p>
-            <small>Kumpulkan {REDEEM_THRESHOLD} poin untuk mendapatkan voucher pertama!</small>
+            </div>
           </div>
         )}
-      </div>
 
-      <div className="info-section">
-        <div className="info-card">
-          <h4>💡 Tips</h4>
-          <ul>
-            <li>Setiap pembelian kopi = 1 poin</li>
-            <li>Kumpulkan {REDEEM_THRESHOLD} poin untuk 1 voucher kopi gratis</li>
-            <li>Voucher tidak memiliki tanggal kedaluwarsa</li>
-            <li>Tunjukkan QR code kepada barista untuk menukar voucher</li>
+        {/* Active Vouchers */}
+        <div className="mb-8">
+          <h3 className="text-2xl font-semibold mb-6 flex items-center gap-2 justify-center">
+            <span className="text-xl">🎟️</span>
+            Voucher Aktif ({vouchers.length})
+          </h3>
+          
+          {vouchers.length > 0 ? (
+            <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
+              {vouchers.map((v) => (
+                <div key={v.id} className="bg-white/10 backdrop-blur-lg rounded-2xl p-6 border border-white/20 hover:-translate-y-1 transition-all duration-300">
+                  <div className="flex justify-between items-center mb-4">
+                    <span className="bg-teal-400 text-white px-3 py-1 rounded-full text-sm font-semibold">
+                      Aktif
+                    </span>
+                    <span className="text-sm opacity-80">
+                      {v.created_at?.toDate().toLocaleDateString() || 'Hari ini'}
+                    </span>
+                  </div>
+                  
+                  <div className="bg-white p-3 rounded-xl text-center mb-4">
+                    <QRCodeSVG 
+                      value={`${window.location.origin}/redeem?token=${v.id}`} 
+                      size={120} 
+                    />
+                  </div>
+                  
+                  <div className="text-center">
+                    <a 
+                      href={`/redeem?token=${v.id}`} 
+                      target="_blank"
+                      rel="noreferrer"
+                      className="bg-gradient-to-r from-red-400 to-red-600 text-white px-6 py-3 rounded-full font-semibold hover:-translate-y-0.5 transition-all duration-300 inline-block"
+                    >
+                      Gunakan Voucher
+                    </a>
+                  </div>
+                </div>
+              ))}
+            </div>
+          ) : (
+            <div className="text-center py-12 bg-white/10 backdrop-blur-lg rounded-2xl border border-white/20">
+              <div className="text-5xl mb-4">📭</div>
+              <p className="text-lg font-medium mb-2">Belum ada voucher aktif</p>
+              <small className="opacity-80">Kumpulkan {REDEEM_THRESHOLD} poin untuk mendapatkan voucher pertama!</small>
+            </div>
+          )}
+        </div>
+
+        {/* Info Section */}
+        <div className="bg-white/10 backdrop-blur-lg rounded-2xl p-6 border border-white/20">
+          <h4 className="text-xl font-semibold mb-4 flex items-center gap-2">
+            💡 Tips
+          </h4>
+          <ul className="space-y-2 text-left opacity-90 leading-relaxed">
+            <li>• Setiap pembelian kopi = 1 poin</li>
+            <li>• Kumpulkan {REDEEM_THRESHOLD} poin untuk 1 voucher kopi gratis</li>
+            <li>• Voucher tidak memiliki tanggal kedaluwarsa</li>
+            <li>• Tunjukkan QR code kepada barista untuk menukar voucher</li>
           </ul>
         </div>
       </div>
