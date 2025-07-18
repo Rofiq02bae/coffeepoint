@@ -124,6 +124,35 @@ function UserDashboard() {
     }
   }, [deviceId]);
 
+  // Simulate QR scan (for testing)
+  const simulateQRScan = async () => {
+    setLoading(true);
+    try {
+      const userRef = doc(db, "users", deviceId);
+      const userSnap = await getDoc(userRef);
+      
+      if (userSnap.exists()) {
+        const userData = userSnap.data();
+        const currentWallet = userData.wallet || { balance: 0, vouchers: [] };
+        
+        // Update wallet balance
+        await updateDoc(userRef, {
+          count: increment(1),
+          'wallet.balance': increment(1)
+        });
+        
+        // Refresh data
+        await fetchUserData(deviceId);
+        showNotification("🎉 +1 point added to your wallet!", 'success');
+      }
+    } catch (error) {
+      console.error("Error simulating QR scan:", error);
+      showNotification("❌ Failed to process QR scan", 'error');
+    } finally {
+      setLoading(false);
+    }
+  };
+
   const redeem = async () => {
     if ((wallet?.balance || 0) < REDEEM_THRESHOLD) {
       showNotification("❌ Not enough points! You need 5 points to redeem a voucher.", 'error');
@@ -193,8 +222,29 @@ function UserDashboard() {
           <p className="text-xl opacity-90 font-light">Web3-like Loyalty System</p>
         </div>
 
+        {/* QR Scan Simulation (for testing) */}
+        <div className="mb-6 text-center">
+          <button
+            onClick={simulateQRScan}
+            disabled={loading}
+            className="bg-green-500 hover:bg-green-600 disabled:bg-gray-400 text-white px-6 py-3 rounded-xl font-semibold transition-all duration-200 shadow-lg hover:shadow-xl transform hover:-translate-y-1 disabled:transform-none"
+          >
+            {loading ? (
+              <span className="flex items-center gap-2">
+                <div className="animate-spin rounded-full h-4 w-4 border-b-2 border-white"></div>
+                Processing...
+              </span>
+            ) : (
+              <span className="flex items-center gap-2">
+                📱 Simulate QR Scan (+1 Point)
+              </span>
+            )}
+          </button>
+          <p className="text-sm opacity-75 mt-2">Click to simulate scanning a receipt QR code</p>
+        </div>
+
         {/* Wallet Info */}
-        <WalletInfo wallet={wallet} deviceId={deviceId} />
+        <WalletInfo wallet={wallet} deviceId={deviceId} notification={notification} />
 
         {/* Redeem Voucher */}
         <RedeemVoucher 
