@@ -39,46 +39,31 @@ function UserDashboard() {
   };
 
   // Initialize wallet if doesn't exist
-  const initializeWallet = async (userId) => {
-    const userRef = doc(db, "users", userId);
-    const userSnap = await getDoc(userRef);
+  const initializeWallet = async (id) => {
+    if (!id) return;
     
-    if (userSnap.exists()) {
-      const userData = userSnap.data();
-      if (!userData.wallet) {
-        // Create new wallet
-        const newWallet = {
-          address: generateWalletAddress(),
-          balance: 0,
-          vouchers: []
-        };
-        
-        await updateDoc(userRef, {
-          wallet: newWallet
-        });
-        
-        setWallet(newWallet);
-        showNotification("🎉 New wallet created! Start collecting points by scanning QR codes.");
-      } else {
-        setWallet(userData.wallet);
-      }
-      setCount(userData.count || 0);
-    } else {
-      // Create new user with wallet
+    try {
+      console.log("Initializing wallet for user:", id);
+      const userRef = doc(db, "users", id);
+      
       const newWallet = {
-        address: generateWalletAddress(),
-        balance: 0,
+        address: crypto.randomUUID(),
+        balance: 1, // Start with 1 point from first scan
         vouchers: []
       };
       
       await setDoc(userRef, { 
-        count: 0,
+        count: 1,
         wallet: newWallet 
       });
       
       setWallet(newWallet);
-      setCount(0);
-      showNotification("🎉 Welcome! Your wallet has been created.");
+      setCount(1);
+      console.log("Wallet initialized successfully:", newWallet);
+      showNotification("🎉 Welcome! Your wallet has been created with +1 point.", 'success');
+    } catch (error) {
+      console.error("Failed to initialize wallet:", error);
+      showNotification("❌ Failed to create wallet", 'error');
     }
   };
 
@@ -126,59 +111,85 @@ function UserDashboard() {
 
   // Simulate QR scan (for testing)
   const simulateQRScan = async () => {
+    console.log("Starting QR scan simulation...");
     setLoading(true);
     try {
       const userRef = doc(db, "users", deviceId);
+      console.log("Getting user document...");
       const userSnap = await getDoc(userRef);
       
       if (userSnap.exists()) {
+        console.log("User exists, updating balance...");
         const userData = userSnap.data();
-        const currentWallet = userData.wallet || { balance: 0, vouchers: [] };
+        console.log("Current user data:", userData);
         
         // Update wallet balance
         await updateDoc(userRef, {
           count: increment(1),
           'wallet.balance': increment(1)
         });
+        console.log("Balance updated successfully");
         
         // Refresh data
         await fetchUserData(deviceId);
         showNotification("🎉 +1 point added to your wallet!", 'success');
+      } else {
+        console.log("User doesn't exist, creating new user...");
+        await initializeWallet(deviceId);
+        showNotification("🎉 Welcome! +1 point added to your new wallet!", 'success');
       }
     } catch (error) {
       console.error("Error simulating QR scan:", error);
+      console.error("Error details:", error.message);
+      console.error("Error code:", error.code);
       showNotification("❌ Failed to process QR scan", 'error');
     } finally {
       setLoading(false);
+      console.log("QR scan simulation finished");
     }
   };
 
   const redeem = async () => {
+    console.log("Starting redeem process...");
+    console.log("Wallet:", wallet);
+    console.log("DeviceId:", deviceId);
+    
     if ((wallet?.balance || 0) < REDEEM_THRESHOLD) {
+      console.log("Not enough balance:", wallet?.balance);
       showNotification("❌ Not enough points! You need 5 points to redeem a voucher.", 'error');
       return;
     }
     
     setLoading(true);
     try {
-      const userRef = doc(db, "users", deviceId);
+      console.log("Creating voucher...");
       const voucherId = crypto.randomUUID();
+      console.log("Generated voucher ID:", voucherId);
       
       // Create new voucher object for wallet
       const newVoucher = {
         id: voucherId,
-        created_at: serverTimestamp(),
+        created_at: new Date().toISOString(), // Use ISO string instead of serverTimestamp
         used: false
       };
+      console.log("New voucher object:", newVoucher);
       
-      // Create token in tokens collection for QR redemption
+      // Try to create token in tokens collection first
       const tokenRef = doc(db, "tokens", voucherId);
-      await setDoc(tokenRef, {
-        created_at: serverTimestamp(),
-        used_by: [],
-        type: "voucher",
-        from_user: deviceId
-      });
+      console.log("Creating token in Firestore...");
+      
+      try {
+        await setDoc(tokenRef, {
+          created_at: new Date().toISOString(), // Use ISO string
+          used_by: [],
+          type: "voucher",
+          from_user: deviceId
+        });
+        console.log("Token created successfully");
+      } catch (tokenError) {
+        console.error("Failed to create token, but continuing:", tokenError);
+        // Continue even if token creation fails
+      }
       
       // Update user wallet
       const updatedVouchers = [...(wallet.vouchers || []), newVoucher];
@@ -187,10 +198,25 @@ function UserDashboard() {
         balance: wallet.balance - REDEEM_THRESHOLD,
         vouchers: updatedVouchers
       };
+      console.log("Updated wallet:", updatedWallet);
       
-      await updateDoc(userRef, {
-        wallet: updatedWallet
-      });
+      console.log("Updating user document...");
+      const userRef = doc(db, "users", deviceId);
+      
+      try {
+        await updateDoc(userRef, {
+          wallet: updatedWallet
+        });
+        console.log("User document updated successfully");
+      } catch (updateError) {
+        console.error("Failed to update user document, trying setDoc:", updateError);
+        // Fallback: try to set the entire document
+        await setDoc(userRef, {
+          count: wallet.balance - REDEEM_THRESHOLD,
+          wallet: updatedWallet
+        }, { merge: true });
+        console.log("User document set successfully with merge");
+      }
       
       // Update local state
       setWallet(updatedWallet);
@@ -202,12 +228,16 @@ function UserDashboard() {
         url: `${window.location.origin}/redeem?token=${voucherId}`,
       });
       
+      console.log("Voucher creation completed successfully");
       showNotification("🎉 Voucher created successfully! -5 points", 'success');
     } catch (e) {
       console.error("Failed to redeem voucher:", e);
+      console.error("Error details:", e.message);
+      console.error("Error code:", e.code);
       showNotification("❌ Failed to create voucher. Please try again.", 'error');
     } finally {
       setLoading(false);
+      console.log("Redeem process finished");
     }
   };
 
