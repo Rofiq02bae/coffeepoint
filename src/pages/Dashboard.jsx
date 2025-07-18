@@ -1,3 +1,4 @@
+
 import { useEffect, useState } from "react";
 import { db } from "../firebase";
 import {
@@ -36,6 +37,7 @@ function Dashboard() {
       return {
         id: doc.id,
         count: d.count || 0,
+        wallet: d.wallet || null, // Include wallet data
       };
     });
     setUsers(data);
@@ -109,7 +111,7 @@ function Dashboard() {
         </div>
 
         {/* Statistics Cards */}
-        <div className="grid grid-cols-1 md:grid-cols-3 gap-6 mb-12">
+        <div className="grid grid-cols-1 md:grid-cols-4 gap-6 mb-12">
           <div className="bg-white/10 backdrop-blur-lg rounded-2xl p-8 text-center border border-white/20 hover:-translate-y-1 transition-all duration-300">
             <div className="text-4xl font-bold mb-2">{tokens.length}</div>
             <div className="text-lg opacity-90 font-light">Total Token</div>
@@ -119,8 +121,12 @@ function Dashboard() {
             <div className="text-lg opacity-90 font-light">Total Pengguna</div>
           </div>
           <div className="bg-white/10 backdrop-blur-lg rounded-2xl p-8 text-center border border-white/20 hover:-translate-y-1 transition-all duration-300">
-            <div className="text-4xl font-bold mb-2">{tokens.reduce((acc, token) => acc + token.usedBy, 0)}</div>
-            <div className="text-lg opacity-90 font-light">Total Penggunaan</div>
+            <div className="text-4xl font-bold mb-2">{users.reduce((acc, user) => acc + (user.wallet?.balance || 0), 0)}</div>
+            <div className="text-lg opacity-90 font-light">Total Points</div>
+          </div>
+          <div className="bg-white/10 backdrop-blur-lg rounded-2xl p-8 text-center border border-white/20 hover:-translate-y-1 transition-all duration-300">
+            <div className="text-4xl font-bold mb-2">{users.reduce((acc, user) => acc + (user.wallet?.vouchers?.length || 0), 0)}</div>
+            <div className="text-lg opacity-90 font-light">Total Vouchers</div>
           </div>
         </div>
 
@@ -201,7 +207,7 @@ function Dashboard() {
         <div className="mb-8">
           <h2 className="text-3xl font-semibold mb-6 flex items-center gap-3">
             <span className="text-2xl">👤</span>
-            Daftar Pengguna
+            Daftar Pengguna & Wallet
           </h2>
           
           <div className="bg-white/95 backdrop-blur-lg rounded-2xl p-6 shadow-2xl overflow-x-auto">
@@ -209,7 +215,10 @@ function Dashboard() {
               <thead>
                 <tr className="bg-gradient-to-r from-blue-600 to-purple-600 text-white">
                   <th className="px-4 py-3 text-left font-semibold text-sm uppercase tracking-wider rounded-l-xl">Device ID</th>
-                  <th className="px-4 py-3 text-left font-semibold text-sm uppercase tracking-wider rounded-r-xl">Total Poin Kopi</th>
+                  <th className="px-4 py-3 text-left font-semibold text-sm uppercase tracking-wider">Wallet Address</th>
+                  <th className="px-4 py-3 text-left font-semibold text-sm uppercase tracking-wider">Points Balance</th>
+                  <th className="px-4 py-3 text-left font-semibold text-sm uppercase tracking-wider">Vouchers</th>
+                  <th className="px-4 py-3 text-left font-semibold text-sm uppercase tracking-wider rounded-r-xl">Legacy Points</th>
                 </tr>
               </thead>
               <tbody>
@@ -221,6 +230,32 @@ function Dashboard() {
                       </code>
                     </td>
                     <td className="px-4 py-4">
+                      {u.wallet?.address ? (
+                        <code className="bg-green-100 px-3 py-1 rounded-lg font-mono text-xs text-green-700">
+                          {u.wallet.address.substring(0, 8)}...{u.wallet.address.substring(-4)}
+                        </code>
+                      ) : (
+                        <span className="text-gray-400 italic">No wallet</span>
+                      )}
+                    </td>
+                    <td className="px-4 py-4">
+                      <span className="bg-gradient-to-r from-yellow-400 to-orange-500 text-white px-3 py-1 rounded-full text-sm font-semibold flex items-center gap-1 w-fit">
+                        💰 {u.wallet?.balance || 0}
+                      </span>
+                    </td>
+                    <td className="px-4 py-4">
+                      <div className="flex items-center gap-2">
+                        <span className="bg-gradient-to-r from-purple-400 to-pink-500 text-white px-3 py-1 rounded-full text-sm font-semibold">
+                          🎟️ {u.wallet?.vouchers?.length || 0}
+                        </span>
+                        {u.wallet?.vouchers?.length > 0 && (
+                          <div className="text-xs text-gray-600">
+                            Used: {u.wallet.vouchers.filter(v => v.used).length}
+                          </div>
+                        )}
+                      </div>
+                    </td>
+                    <td className="px-4 py-4">
                       <span className="bg-gradient-to-r from-teal-400 to-green-500 text-white px-3 py-1 rounded-full text-sm font-semibold">
                         {u.count}
                       </span>
@@ -229,7 +264,7 @@ function Dashboard() {
                 ))}
                 {users.length === 0 && (
                   <tr>
-                    <td colSpan="2" className="px-4 py-12 text-center text-gray-500 italic">
+                    <td colSpan="5" className="px-4 py-12 text-center text-gray-500 italic">
                       Belum ada pengguna terdaftar
                     </td>
                   </tr>
